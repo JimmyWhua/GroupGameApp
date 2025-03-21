@@ -15,3 +15,7 @@ To install Expo CLI globally:
 
 ```bash
 npm install -g expo-cli
+
+npm install
+
+expo start
