@@ -4,6 +4,9 @@ DIBS! is a mobile app that uses cryptography to create entertaining consumer exp
 
 The app is built with React Native where users can create or join group games. Users can start and play games in real-time.
 
+## Tech Stack
+
+
 ## Getting Started
 
 ### Prerequisites
@@ -21,5 +24,3 @@ npm install -g expo-cli
 npm install
 
 npx expo start
-
-## Tech Stack
