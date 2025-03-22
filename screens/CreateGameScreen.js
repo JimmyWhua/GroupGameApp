@@ -34,7 +34,11 @@ export default function CreateGameScreen({ navigation }) {
         if (typeof result.prompt === 'string') {
           const trimmed = result.prompt.trim();
           // Check that it starts with '[' or '{'
-          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+          if (trimmed.startsWith('```json')) {
+            const cleaned = trimmed.replace(/```json|```/g, '').trim();
+            const parsed = JSON.parse(cleaned);
+            tasksArray = Array.isArray(parsed) ? parsed : parsed.tasks;
+          } else if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
             const parsed = JSON.parse(trimmed);
             tasksArray = Array.isArray(parsed) ? parsed : parsed.tasks;
           } else {
