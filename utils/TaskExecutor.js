@@ -62,19 +62,17 @@ export const executeTask = async (task) => {
       base64: true,
     }
     );
-    console.log('**************');
     console.log('Result Object:', result); // Log the entire result object
     // console.log('Result Keys:', Object.keys(result)); // Log the keys of the result rtobject
     console.log('Canceled:', result.canceled); // Log the canceled property
-    console.log('**************');
     console.log('Result Keys:', Object.keys(result.assets['0'].base64)); // Log the keys of the result object
-    console.log('**************');
 
 
 
 
     if (!result.canceled) {
       console.log('in here')
+      Alert.alert('Photo Taken: Image matches',);
       const imageUri = result.assets['0'].uri;
       Alert.alert('Photo Taken', `Image URI: ${imageUri}`);
       // console.log()

@@ -15,8 +15,6 @@ export default function App() {
     <PrivyProvider appId="cm8kncwzt00bx6llqorf33j6d" clientId="client-WY5i2gNP81TmhGt9Tu3ByKRePhG45QHoaX4Ytm2js1UEB">
 
       <NavigationContainer>
-      {/* <Slot /> */}
-
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="CreateGame" component={CreateGameScreen} />
