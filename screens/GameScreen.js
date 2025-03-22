@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { executeTask } from '../utils/TaskExecutor';
 
 export default function GameScreen({ route }) {
   // Expect prompt tasks to be passed in route.params.prompt as an array.
@@ -16,10 +17,10 @@ export default function GameScreen({ route }) {
 
   const currentTask = prompt[currentCardIndex];
 
-  const executeTask = () => {
-    // Add logic here to execute the task (e.g., open camera for picture tasks)
-    Alert.alert('Execute Task', `Performing: ${currentTask.action}`);
-  };
+  // const executeTask = () => {
+  //   // Add logic here to execute the task (e.g., open camera for picture tasks)
+  //   Alert.alert('Execute Task', `Performing: ${currentTask.action}`);
+  // };
 
   const nextCard = () => {
     if (currentCardIndex < prompt.length - 1) {
@@ -46,7 +47,7 @@ export default function GameScreen({ route }) {
       </View>
       <View style={styles.buttonRow}>
         <Button title="Previous Card" onPress={previousCard} />
-        <Button title="Execute Task" onPress={executeTask} />
+        <Button title="Execute Task" onPress={() => executeTask(currentTask)} />
         <Button title="Next Card" onPress={nextCard} />
       </View>
     </View>
