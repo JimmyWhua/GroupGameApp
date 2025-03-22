@@ -1,8 +1,9 @@
+// screens/CreateGameScreen.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, FlatList, Alert } from 'react-native';
 import io from 'socket.io-client';
 
-const SOCKET_SERVER_URL = 'http://192.168.1.246:3000';
+const SOCKET_SERVER_URL = 'http://192.168.1.246:3000'; // Replace with your actual IP
 
 export default function CreateGameScreen({ navigation }) {
   const [socket, setSocket] = useState(null);
@@ -11,70 +12,39 @@ export default function CreateGameScreen({ navigation }) {
   const [roomPlayers, setRoomPlayers] = useState([]);
   const [currentPrompt, setCurrentPrompt] = useState(null);
 
-  // Log currentPrompt whenever it changes
   useEffect(() => {
-    console.log('Current Prompt:', currentPrompt);
-  }, [currentPrompt]);
-
-  useEffect(() => {
-    // Connect to the Socket.IO server using only the websocket transport
+    // Connect to the Socket.IO server using only websocket transport
     const newSocket = io(SOCKET_SERVER_URL, {
       transports: ['websocket'],
     });
     setSocket(newSocket);
 
-    // Listen for updates on the list of players in the room
+    // Listen for updated list of players
     newSocket.on('room-players', (players) => {
       console.log('Updated room players:', players);
       setRoomPlayers(players);
     });
 
-    // Listen for new prompts from the server
+    // Listen for new prompt from the server
     newSocket.on('new-prompt', (result) => {
       console.log('Received new prompt:', result.prompt);
-
-      let promptString = result.prompt;
       let tasksArray = [];
 
       try {
-        if (typeof promptString === 'string') {
-          // Trim whitespace
-          promptString = promptString.trim();
-
-          // Remove markdown code block markers if present
-          if (promptString.startsWith("```json")) {
-            promptString = promptString.substring(7).trim(); // remove "```json"
-          }
-          if (promptString.endsWith("```")) {
-            promptString = promptString.substring(0, promptString.length - 3).trim(); // remove ending "```"
-          }
-
+        if (typeof result.prompt === 'string') {
+          const trimmed = result.prompt.trim();
           // Check that it starts with '[' or '{'
-          if (promptString.startsWith('[') || promptString.startsWith('{')) {
-            const parsed = JSON.parse(promptString);
-            // If parsed JSON has a "tasks" property, use it; otherwise assume it's directly the array.
-            if (Array.isArray(parsed.tasks)) {
-              tasksArray = parsed.tasks;
-            } else if (Array.isArray(parsed)) {
-              tasksArray = parsed;
-            } else {
-              console.error("Parsed JSON is not in expected format:", parsed);
-              return;
-            }
+          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+            const parsed = JSON.parse(trimmed);
+            tasksArray = Array.isArray(parsed) ? parsed : parsed.tasks;
           } else {
-            console.error("The prompt string does not appear to be valid JSON:", promptString);
+            console.error("Prompt string does not look like JSON:", trimmed);
             return;
           }
         } else if (typeof result.prompt === 'object') {
-          // Already an object: extract tasks array if available.
-          if (Array.isArray(result.prompt.tasks)) {
-            tasksArray = result.prompt.tasks;
-          } else if (Array.isArray(result.prompt)) {
-            tasksArray = result.prompt;
-          } else {
-            console.error("Prompt object is not in expected format:", result.prompt);
-            return;
-          }
+          tasksArray = Array.isArray(result.prompt)
+            ? result.prompt
+            : result.prompt.tasks;
         }
       } catch (err) {
         console.error("Error parsing prompt JSON:", err);
@@ -83,6 +53,7 @@ export default function CreateGameScreen({ navigation }) {
 
       console.log('Tasks array:', tasksArray);
       setCurrentPrompt(tasksArray);
+      // Navigate to the game screen with prompt tasks and room players info.
       navigation.navigate('Game', { prompt: tasksArray, roomPlayers });
     });
 
@@ -100,7 +71,7 @@ export default function CreateGameScreen({ navigation }) {
       Alert.alert('Error', 'Please enter a room code and your name.');
       return;
     }
-    // Emit join-room event with room code and player's name
+    console.log(`Joining room ${room} as ${playerName}`);
     socket.emit('join-room', { room, playerName });
     Alert.alert('Success', `Joined room: ${room}`);
   };
@@ -110,7 +81,7 @@ export default function CreateGameScreen({ navigation }) {
       Alert.alert('Error', 'You must join a room first.');
       return;
     }
-    // Ask the backend to generate a new prompt for this room
+    console.log('Generating prompt for room:', room);
     socket.emit('generate-prompt', { room });
   };
 
@@ -120,8 +91,7 @@ export default function CreateGameScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Multiplayer Game</Text>
-
+      <Text style={styles.title}>Multiplayer Game Setup</Text>
       <TextInput
         style={styles.input}
         placeholder="Enter Room Code"
@@ -135,7 +105,6 @@ export default function CreateGameScreen({ navigation }) {
         onChangeText={setPlayerName}
       />
       <Button title="Join Room" onPress={joinRoom} />
-
       <FlatList
         data={roomPlayers}
         keyExtractor={(item) => item.id}
@@ -143,21 +112,13 @@ export default function CreateGameScreen({ navigation }) {
         ListHeaderComponent={<Text style={styles.header}>Players in Room:</Text>}
         style={styles.playerList}
       />
-
       <Button title="Generate Prompt (Host)" onPress={generatePrompt} />
 
+      {/* For debugging, you might show the raw prompt JSON */}
       {currentPrompt && (
-        <View style={styles.promptContainer}>
-          <Text style={styles.promptTitle}>Current Prompt:</Text>
-          {currentPrompt.map((task) => (
-            <View key={task.task_id} style={styles.taskItem}>
-              <Text style={styles.taskName}>{task.task_name}</Text>
-              <Text style={styles.taskDescription}>{task.description}</Text>
-              <Text style={styles.taskAction}>{task.action}</Text>
-              <Text style={styles.taskType}>Type: {task.task_type}</Text>
-            </View>
-          ))}
-        </View>
+        <Text style={styles.debugPrompt}>
+          {JSON.stringify(currentPrompt, null, 2)}
+        </Text>
       )}
     </View>
   );
@@ -175,12 +136,9 @@ const styles = StyleSheet.create({
   header: { fontSize: 18, marginVertical: 10 },
   playerItem: { fontSize: 16, padding: 5 },
   playerList: { maxHeight: 150 },
-  // New styles for prompt display
-  promptContainer: { marginTop: 20 },
-  promptTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-  taskItem: { padding: 10, borderWidth: 1, borderColor: 'gray', marginBottom: 5 },
-  taskName: { fontSize: 18 },
-  taskDescription: { fontSize: 16 },
-  taskAction: { fontSize: 16, color: 'blue' },
-  taskType: { fontSize: 16, fontStyle: 'italic' },
+  debugPrompt: {
+    marginTop: 20,
+    fontSize: 12,
+    fontFamily: 'monospace',
+  },
 });

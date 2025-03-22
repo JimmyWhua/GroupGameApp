@@ -1,145 +1,67 @@
-// screens/CreateGameScreen.js
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, FlatList, Alert } from 'react-native';
-import io from 'socket.io-client';
+// screens/GameScreen.js
+import React, { useState } from 'react';
+import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 
-const SOCKET_SERVER_URL = 'http://YOUR_COMPUTER_IP:3000'; // Replace with your actual IP
+export default function GameScreen({ route }) {
+  // Expect prompt tasks to be passed in route.params.prompt as an array.
+  const { prompt } = route.params;
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
-export default function CreateGameScreen({ navigation }) {
-  const [socket, setSocket] = useState(null);
-  const [room, setRoom] = useState('');
-  const [playerName, setPlayerName] = useState('');
-  const [roomPlayers, setRoomPlayers] = useState([]);
-  const [currentPrompt, setCurrentPrompt] = useState(null);
+  if (!prompt || prompt.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>No tasks available!</Text>
+      </View>
+    );
+  }
 
-  useEffect(() => {
-    // Connect to the Socket.IO server
-    const newSocket = io(SOCKET_SERVER_URL);
-    setSocket(newSocket);
+  const currentTask = prompt[currentCardIndex];
 
-    // Listen for updates on the list of players in the room
-    newSocket.on('room-players', (players) => {
-      console.log('Received updated room players:', players);
-      setRoomPlayers(players);
-    });
-
-    // Listen for new prompts from the server
-    newSocket.on('new-prompt', (result) => {
-      console.log('Received new prompt:', result.prompt);
-      let tasksArray = [];
-      try {
-        if (typeof result.prompt === 'string') {
-          const trimmed = result.prompt.trim();
-          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-            const parsed = JSON.parse(trimmed);
-            tasksArray = Array.isArray(parsed) ? parsed : parsed.tasks;
-          } else {
-            console.error("Prompt string does not look like JSON:", trimmed);
-            return;
-          }
-        } else if (typeof result.prompt === 'object') {
-          tasksArray = Array.isArray(result.prompt) ? result.prompt : result.prompt.tasks;
-        }
-      } catch (err) {
-        console.error("Error parsing prompt JSON:", err);
-        return;
-      }
-      console.log('Tasks array:', tasksArray);
-      setCurrentPrompt(tasksArray);
-      navigation.navigate('Game', { prompt: tasksArray, roomPlayers });
-    });
-
-    newSocket.on('connect_error', (err) => {
-      console.error('Connection Error:', err);
-    });
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [navigation]);
-
-  const joinRoom = () => {
-    if (!socket) {
-      Alert.alert('Error', 'Socket not connected yet.');
-      return;
-    }
-    if (!room || !playerName) {
-      Alert.alert('Error', 'Please enter both a room code and your name.');
-      return;
-    }
-    console.log(`Emitting join-room with room: ${room} and playerName: ${playerName}`);
-    socket.emit('join-room', { room, playerName });
-    Alert.alert('Success', `Joined room: ${room}`);
+  const executeTask = () => {
+    // Here you can add logic to, for example, open the camera or start audio recording
+    Alert.alert('Execute Task', `Performing: ${currentTask.action}`);
   };
 
-  const generatePrompt = () => {
-    if (!socket) {
-      Alert.alert('Error', 'Socket not connected yet.');
-      return;
+  const nextCard = () => {
+    if (currentCardIndex < prompt.length - 1) {
+      setCurrentCardIndex(currentCardIndex + 1);
+    } else {
+      Alert.alert('End', 'No more tasks available!');
     }
-    if (!room) {
-      Alert.alert('Error', 'You must join a room first.');
-      return;
-    }
-    console.log('Emitting generate-prompt for room:', room);
-    socket.emit('generate-prompt', { room });
   };
 
-  // Instead of rendering the raw prompt object,
-  // you might render a summary or simply not render it here.
+  const previousCard = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(currentCardIndex - 1);
+    } else {
+      Alert.alert('Start', 'This is the first task!');
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Multiplayer Game</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Room Code"
-        value={room}
-        onChangeText={setRoom}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Your Name"
-        value={playerName}
-        onChangeText={setPlayerName}
-      />
-      <Button title="Join Room" onPress={joinRoom} />
-
-      <FlatList
-        data={roomPlayers}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <Text style={styles.playerItem}>{item.playerName}</Text>}
-        ListHeaderComponent={<Text style={styles.header}>Players in Room:</Text>}
-        style={styles.playerList}
-      />
-
-      <Button title="Generate Prompt (Host)" onPress={generatePrompt} />
-
-      {/* For debugging purposes, you can stringify the current prompt */}
-      {currentPrompt && (
-        <Text style={styles.debugPrompt}>
-          {JSON.stringify(currentPrompt, null, 2)}
-        </Text>
-      )}
+      <Text style={styles.title}>{currentTask.task_name}</Text>
+      <Text style={styles.description}>{currentTask.description}</Text>
+      <Text style={styles.type}>Type: {currentTask.task_type}</Text>
+      <View style={styles.buttonRow}>
+        <Button title="Previous Card" onPress={previousCard} />
+        <Button title="Execute Task" onPress={executeTask} />
+        <Button title="Next Card" onPress={nextCard} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center' },
-  title: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
-  input: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    padding: 10,
-    marginBottom: 10,
+  container: { 
+    flex: 1, 
+    padding: 20, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
-  header: { fontSize: 18, marginVertical: 10 },
-  playerItem: { fontSize: 16, padding: 5 },
-  playerList: { maxHeight: 150 },
-  debugPrompt: {
-    marginTop: 20,
-    fontSize: 12,
-    fontFamily: 'monospace',
-  },
+  title: { fontSize: 24, marginBottom: 10, textAlign: 'center' },
+  description: { fontSize: 16, marginBottom: 10, textAlign: 'center' },
+  type: { fontSize: 16, marginBottom: 20, fontStyle: 'italic' },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', width: '80%' },
+  message: { fontSize: 20, textAlign: 'center' },
 });
