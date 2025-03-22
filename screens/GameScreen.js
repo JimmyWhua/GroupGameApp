@@ -1,4 +1,3 @@
-// screens/GameScreen.js
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 
@@ -18,7 +17,7 @@ export default function GameScreen({ route }) {
   const currentTask = prompt[currentCardIndex];
 
   const executeTask = () => {
-    // Here you can add logic to, for example, open the camera or start audio recording
+    // Add logic here to execute the task (e.g., open camera for picture tasks)
     Alert.alert('Execute Task', `Performing: ${currentTask.action}`);
   };
 
@@ -40,9 +39,11 @@ export default function GameScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{currentTask.task_name}</Text>
-      <Text style={styles.description}>{currentTask.description}</Text>
-      <Text style={styles.type}>Type: {currentTask.task_type}</Text>
+      <View style={styles.cardContainer}>
+        <Text style={styles.title}>{currentTask.task_name}</Text>
+        <Text style={styles.description}>{currentTask.description}</Text>
+        <Text style={styles.type}>Type: {currentTask.task_type}</Text>
+      </View>
       <View style={styles.buttonRow}>
         <Button title="Previous Card" onPress={previousCard} />
         <Button title="Execute Task" onPress={executeTask} />
@@ -53,15 +54,54 @@ export default function GameScreen({ route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 20, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
+  container: {
+    flex: 1,
+    backgroundColor: '#f7f7f7',
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  title: { fontSize: 24, marginBottom: 10, textAlign: 'center' },
-  description: { fontSize: 16, marginBottom: 10, textAlign: 'center' },
-  type: { fontSize: 16, marginBottom: 20, fontStyle: 'italic' },
-  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', width: '80%' },
-  message: { fontSize: 20, textAlign: 'center' },
+  cardContainer: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    // Elevation for Android
+    elevation: 5,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '600',
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#333'
+  },
+  description: {
+    fontSize: 18,
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#666'
+  },
+  type: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    color: '#999'
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%'
+  },
+  message: {
+    fontSize: 20,
+    textAlign: 'center',
+    color: '#555'
+  }
 });
