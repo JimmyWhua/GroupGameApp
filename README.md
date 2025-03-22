@@ -14,8 +14,15 @@ Ensure that you have the following installed:
 To install Expo CLI globally:
 
 ```bash
+# frontend
 npm install -g expo-cli
 
 npm install
 
 npx expo start
+
+# rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+curl -L https://sp1up.succinct.xyz | bash
+
+
