@@ -1,6 +1,8 @@
-# GroupGameApp
+# DIBS!
 
-A mobile app built with React Native where users can create or join group games. The game generates random card prompts, and users can start and play games in real-time.
+DIBS! is a mobile app that uses cryptography to create entertaining consumer experiences--play with friends and at parties by using DIBS! to generate random card prompts that send users into a frenzy to complete their tasks accurate as quickly as possible.
+
+The app is built with React Native where users can create or join group games. Users can start and play games in real-time.
 
 ## Getting Started
 
@@ -19,3 +21,5 @@ npm install -g expo-cli
 npm install
 
 npx expo start
+
+## Tech Stack
