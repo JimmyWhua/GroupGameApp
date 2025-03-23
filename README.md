@@ -5,7 +5,7 @@ DIBS! is a mobile app that uses cryptography to create entertaining consumer exp
 The app is built with React Native where users can create or join group games. Users can start and play games in real-time.
 
 ## Tech Stack
-To ensure easy onboarding, we supported Privy. Privy allows users to join group games with emails and tie their social login to a wallet address for distribution of points (tokens).
+To ensure easy onboarding, we supported Privy. Privy allows users to join group games with emails, tie their social login to a wallet address for distribution of points (tokens), and interact with an agentic group gaming experience.
 
 The app then feeds encrypted photo metadata (tags like "cake, candles" or anonymized location hints) into SecretLLM. Running in a secure environment, it generated prompts like "What was your favorite moment at this celebration?" without accessing unencrypted data. The participant who answers accurately, fastest, screams DIBS!
 
