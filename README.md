@@ -22,6 +22,10 @@ Sensitivity of Private Locations: Photos from homes or restricted areas need iro
 Group Dynamics: Trust among participants hinges on verifiable privacy. SP1’s transparency (via open-source Rust code) and SecretLLM’s secure AI build a system where users feel safe contributing.
 
 ## Consumer Friendly UI
+<img width="390" alt="Screenshot 2025-03-23 at 10 16 02 AM" src="https://github.com/user-attachments/assets/842d9ef3-f920-4a9c-8359-0b2d9da30a9f" />
+<img width="390" alt="Screenshot 2025-03-23 at 10 16 35 AM" src="https://github.com/user-attachments/assets/bba54e2f-27c4-4f22-ab9c-0c14e4ae2f85" />
+<img width="390" alt="Screenshot 2025-03-23 at 10 16 50 AM" src="https://github.com/user-attachments/assets/d9cc3c2d-c135-4743-80f6-c33e405069b2" />
+
 
 ## Getting Started
 
